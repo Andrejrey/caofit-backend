@@ -19,6 +19,30 @@ app.route("/foodlist").get(async (req, res) => {
   }
 });
 
+app.route("/shopitems").get(async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, item_name, item_flavour, item_image, item_price, stock FROM ShopItems`
+    );
+    return res.json(rows);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.route("/shopitems/:id").get(async (req, res) => {
+  const itemId = req.params.id;
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM ShopItems WHERE ShopItems.id = $1`,
+      [itemId]
+    );
+    return res.json(rows);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
