@@ -8,102 +8,81 @@ const port = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
-app.route("/foodlist").get(async (req, res) => {
+app.route("/diary").get(async (req, res) => {
   try {
-    const { rows } =
-      await pool.query(`SELECT FoodList.id as id, FoodList.name as name, image, icon, FoodCategory.name as category, quantity, FoodUnits.name as unit, carbs, fat, proteins, kcal
-    FROM FoodList
-    LEFT JOIN FoodCategory on FoodCategory.id = FoodList.category
-    LEFT JOIN FoodUnits on FoodUnits.id = FoodList.unit;`);
+    const { rows } = await pool.query(`SELECT * FROM Diary`);
     return res.json(rows);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 });
 
-app.route("/shopitems").get(async (req, res) => {
+app.route("/food_eaten").get(async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT id, item_name, item_flavour, item_image, item_price, stock FROM ShopItems`
-    );
+    const { rows } = await pool.query(`SELECT * FROM FoodEaten`);
     return res.json(rows);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 });
 
-app.route("/shopitems/:id").get(async (req, res) => {
-  const itemId = req.params.id;
+app.route("/save_to_diary").post(async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT * FROM ShopItems WHERE ShopItems.id = $1`,
-      [itemId]
-    );
-    return res.json(rows);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
+    const {
+      total_carbs,
+      total_fats,
+      total_proteins,
+      total_kcal,
+      date,
+      day,
+      food,
+    } = req.body;
 
-app.route("/total_nutritional_value").post(async (req, res) => {
-  try {
-    const { total_carbs, total_fats, total_proteins, total_kcal, date, day } =
-      req.body;
     if (
       !total_carbs ||
       !total_fats ||
       !total_proteins ||
       !total_kcal ||
       !date ||
-      !day
+      !day ||
+      !food
     )
       throw new Error("Invalid input", 400);
     const { rows } = await pool.query(
       "INSERT INTO Diary (total_carbs, total_fats, total_proteins, total_kcal, date, day) VALUES ($1, $2, $3, $4, $5, $6) RETURNING * ",
       [total_carbs, total_fats, total_proteins, total_kcal, date, day]
     );
-    return res.json(rows);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
 
-app.route("/food_eaten").post(async (req, res) => {
-  try {
-    const {
-      food_icon,
-      food_name,
-      food_quantity,
-      food_unit,
-      food_total_carbs,
-      food_total_fats,
-      food_total_proteins,
-      food_total_kcal,
-    } = req.body;
-    if (
-      !food_icon ||
-      !food_name ||
-      !food_quantity ||
-      !food_unit ||
-      !food_total_carbs ||
-      !food_total_fats ||
-      !food_total_proteins ||
-      !food_total_kcal
-    )
-      throw new Error("Invalid input", 400);
-    const { rows } = await pool.query(
-      "INSERT INTO FoodEaten (food_icon, food_name, food_quantity, food_unit, food_total_carbs, food_total_fats, food_total_proteins, food_total_kcal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING * ",
-      [
-        food_icon,
-        food_name,
-        food_quantity,
-        food_unit,
-        food_total_carbs,
-        food_total_fats,
-        food_total_proteins,
-        food_total_kcal,
-      ]
-    );
+    const promise = food.map(async (food) => {
+      console.log(food);
+      if (
+        !food.foodIcon ||
+        !food.name ||
+        !food.quantity ||
+        !food.unit ||
+        !food.totalFoodCarbs ||
+        !food.totalFoodFat ||
+        !food.totalFoodKcal ||
+        !food.totalFoodProteins
+      )
+        throw Error("Invalid input", 400);
+      const { rows } = await pool.query(
+        "INSERT INTO FoodEaten (food_icon, food_name, food_quantity, food_unit, food_total_carbs, food_total_fats, food_total_proteins, food_total_kcal) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING * ",
+        [
+          food.foodIcon,
+          food.name,
+          food.quantity,
+          food.unit,
+          food.totalFoodCarbs,
+          food.totalFoodFat,
+          food.totalFoodProteins,
+          food.totalFoodKcal,
+        ]
+      );
+      console.log(rows);
+    });
+
+    console.log(rows);
     return res.json(rows);
   } catch (error) {
     return res.status(500).json({ error: error.message });
