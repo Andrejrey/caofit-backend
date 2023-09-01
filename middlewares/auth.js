@@ -8,7 +8,6 @@ export const protect = asyncHandler(async (req, res, next) => {
   const [, token] = bearer.split(" ");
   if (!token) throw new ErrorResponse("Not a valid token", 401);
   const user = jwt.verify(token, process.env.JWT_SECRET);
-  console.log("user:", user);
   req.userId = user.id;
   next();
 });
