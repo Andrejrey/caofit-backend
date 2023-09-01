@@ -1,5 +1,4 @@
 import app from "./app.js";
-import pool from "./db/client.js";
 import cors from "cors";
 import express from "express";
 
