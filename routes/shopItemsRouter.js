@@ -4,10 +4,11 @@ import {
   getShopItemsList,
 } from "../controller/shopItemsController.js";
 import { checkShopItem } from "../middlewares/checkShopItem.js";
+import { noIndex } from "../middlewares/noIndex.js";
 
 const shopItemsRouter = Router();
 
-shopItemsRouter.get("/", getShopItemsList);
-shopItemsRouter.get("/:id", checkShopItem, getShopItem);
+shopItemsRouter.get("/", noIndex, getShopItemsList);
+shopItemsRouter.get("/:id", noIndex, checkShopItem, getShopItem);
 
 export default shopItemsRouter;
