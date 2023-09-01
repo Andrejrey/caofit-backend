@@ -59,10 +59,8 @@ export const postFoodToDiary = async (req, res, next) => {
         );
       })
     );
-    console.log("data", data);
     return res.json(data);
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: error.message });
   }
 };

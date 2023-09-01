@@ -44,7 +44,6 @@ export const signIn = async (req, res, next) => {
     if (found.rows.length === 0)
       throw new ErrorResponse("User doesn't exists!", 400);
     const isValid = await comparePasswords(password, found.rows[0].password);
-
     if (!isValid) throw new ErrorResponse("Incorrect password", 401);
     const token = createJWT(found.rows[0].id);
     res.json({ token });
