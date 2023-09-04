@@ -12,8 +12,12 @@ export const getShopItemsList = async (req, res, next) => {
 };
 
 export const getShopItem = async (req, res, next) => {
+  const productId = req.params.id;
   try {
-    return res.json(req.shopItem);
+    const { rows } = await pool.query(`SELECT * FROM ShopItems WHERE id = $1`, [
+      productId,
+    ]);
+    return res.json(rows);
   } catch (error) {
     next(error);
   }
