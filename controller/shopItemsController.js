@@ -1,5 +1,4 @@
 import pool from "../db/client.js";
-import ErrorResponse from "../utils/ErrorResponse.js";
 
 export const getShopItemsList = async (req, res, next) => {
   try {

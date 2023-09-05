@@ -54,7 +54,11 @@ export const signIn = async (req, res, next) => {
 
 export const getUser = asyncHandler(async (req, res) => {
   const { userId } = req;
-  const found = await pool.query("SELECT * FROM Users WHERE id = $1", [userId]);
+  const found = await pool.query(
+    "SELECT id, first_name, last_name, email, image, ative, created_at FROM Users WHERE id = $1",
+    [userId]
+  );
+  console.log(found.rows[0]);
   if (found.rows.length === 0)
     throw new ErrorResponse("User doesn't exists!", 400);
   res.status(201).json(found.rows[0]);
