@@ -92,3 +92,17 @@ export const getUserDiary = async (req, res, next) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const deleteDiaryById = async (req, res, next) => {
+  const { id } = req.params;
+  console.log(id);
+  try {
+    const data = await pool.query("DELETE from FoodEaten WHERE diaryId = $1", [
+      id,
+    ]);
+    const { rows } = await pool.query("DELETE from Diary WHERE id = $1", [id]);
+    return res.json({ message: "deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
